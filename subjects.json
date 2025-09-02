@@ -1,0 +1,11 @@
+[
+  { "id": "matstat", "name": "Мат Стат" },
+  { "id": "diskret", "name": "Дискретка" },
+  { "id": "ther info", "name": "Теория Информ" },
+  { "id": "progmeth", "name": "Методы программирования" },
+  { "id": "osint", "name": "OSINT" },
+  { "id": "asembly", "name": "Ассемблер" },
+  { "id": "modsecpc", "name": "Мод. Без. Комп. Сис." },
+  { "id": "elandschtech", "name": "Элект. и схемотех." },
+  { "id": "fizra", "name": "Физ-ра лек." }
+]

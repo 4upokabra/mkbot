@@ -1,0 +1,68 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Extensions
+*.so
+*.dylib
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.venv.bak/
+
+# Editors/IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Tests / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.pyre/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+.envrc
+
+# Databases and journals
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+
+# Telethon sessions
+*.session
+*.session-journal
+*.session-*
+
+# Caches
+cache/
+__pypackages__/
+
+# Project-specific
+bot.db
+sessions/
+.cache/
