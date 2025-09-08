@@ -8,6 +8,7 @@ load_dotenv()
 API_ID = int(os.getenv("API_ID", "0"))
 API_HASH = os.getenv("API_HASH", "")
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/mkbot")
 ADMIN_WHITELIST = [int(x) for x in os.getenv("ADMIN_WHITELIST", "").replace(" ", "").split(",") if x]
 SUBJECTS_FILE = os.getenv("SUBJECTS_FILE", "subjects.json")
 TIMEZONE = os.getenv("TIMEZONE", "Asia/Yekaterinburg")

@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mkbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  bot:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      API_ID: "${API_ID}"
+      API_HASH: "${API_HASH}"
+      BOT_TOKEN: "${BOT_TOKEN}"
+      ADMIN_WHITELIST: "${ADMIN_WHITELIST}"
+      SUBJECTS_FILE: "/app/subjects.json"
+      TIMEZONE: "${TIMEZONE:-Asia/Yekaterinburg}"
+      HW_RETENTION_DAYS: "${HW_RETENTION_DAYS:-0}"
+      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/mkbot"
+    command: ["python", "-m", "src.main"]
+
+volumes:
+  pgdata:
+
+

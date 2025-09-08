@@ -1,57 +1,67 @@
 from typing import List, Dict, Any, Optional
-from ..db import get_conn
+from datetime import date
+from sqlalchemy import select, delete
+from sqlalchemy.orm import load_only
+from ..db import get_session, Homework
 
 
-def _map_row(row) -> Dict[str, Any]:
+def _map_model(hw: Homework) -> Dict[str, Any]:
 	return {
-		"id": row[0],
-		"subject_id": row[1],
-		"title": row[2],
-		"description": row[3] or "",
-		"due_date": row[4],
-		"created_by": row[5],
-		"created_at": row[6],
+		"id": hw.id,
+		"subject_id": hw.subject_id,
+		"title": hw.title,
+		"description": hw.description or "",
+		"due_date": hw.due_date.strftime("%Y-%m-%d"),
+		"created_by": hw.created_by,
+		"created_at": hw.created_at,
 	}
 
 
 async def add_homework(subject_id: str, title: str, description: str, due_date_iso: str, created_by: Optional[int]) -> None:
-	conn = get_conn()
-	await conn.execute(
-		"INSERT INTO homeworks (subject_id, title, description, due_date, created_by) VALUES (?, ?, ?, ?, ?)",
-		(subject_id, title, description, due_date_iso, created_by),
-	)
-	await conn.commit()
+	async with get_session() as session:
+		hw = Homework(
+			subject_id=subject_id,
+			title=title,
+			description=description,
+			due_date=date.fromisoformat(due_date_iso),
+			created_by=created_by,
+		)
+		session.add(hw)
+		await session.commit()
 
 
 async def list_all(limit: int = 50) -> List[Dict[str, Any]]:
-	cur = await get_conn().execute(
-		"SELECT id, subject_id, title, description, due_date, created_by, created_at FROM homeworks ORDER BY due_date ASC, id DESC LIMIT ?",
-		(limit,),
-	)
-	rows = await cur.fetchall()
-	return [_map_row(r) for r in rows]
+	async with get_session() as session:
+		result = await session.execute(
+			select(Homework).order_by(Homework.due_date.asc(), Homework.id.desc()).limit(limit)
+		)
+		items = result.scalars().all()
+		return [_map_model(i) for i in items]
 
 
 async def list_by_date(due_date_iso: str) -> List[Dict[str, Any]]:
-	cur = await get_conn().execute(
-		"SELECT id, subject_id, title, description, due_date, created_by, created_at FROM homeworks WHERE due_date=? ORDER BY id DESC",
-		(due_date_iso,),
-	)
-	rows = await cur.fetchall()
-	return [_map_row(r) for r in rows]
+	async with get_session() as session:
+		d = date.fromisoformat(due_date_iso)
+		result = await session.execute(
+			select(Homework).where(Homework.due_date == d).order_by(Homework.id.desc())
+		)
+		items = result.scalars().all()
+		return [_map_model(i) for i in items]
 
 
 async def list_by_subject(subject_id: str, limit: int = 50) -> List[Dict[str, Any]]:
-	cur = await get_conn().execute(
-		"SELECT id, subject_id, title, description, due_date, created_by, created_at FROM homeworks WHERE subject_id=? ORDER BY due_date ASC, id DESC LIMIT ?",
-		(subject_id, limit),
-	)
-	rows = await cur.fetchall()
-	return [_map_row(r) for r in rows]
+	async with get_session() as session:
+		result = await session.execute(
+			select(Homework).where(Homework.subject_id == subject_id).order_by(Homework.due_date.asc(), Homework.id.desc()).limit(limit)
+		)
+		items = result.scalars().all()
+		return [_map_model(i) for i in items]
 
 
 async def delete_due_before(threshold_iso_date: str) -> int:
-	conn = get_conn()
-	cur = await conn.execute("DELETE FROM homeworks WHERE due_date < ?", (threshold_iso_date,))
-	await conn.commit()
-	return cur.rowcount if cur.rowcount != -1 else 0
+	async with get_session() as session:
+		threshold = date.fromisoformat(threshold_iso_date)
+		result = await session.execute(delete(Homework).where(Homework.due_date < threshold).returning(Homework.id))
+		deleted_rows = result.fetchall()
+		await session.commit()
+		return len(deleted_rows)

@@ -9,7 +9,7 @@ python -m venv .venv
 . .venv/Scripts/activate  # Windows PowerShell
 pip install -r requirements.txt
 copy env.example .env
-# заполните .env значениями API_ID, API_HASH, BOT_TOKEN
+# заполните .env значениями API_ID, API_HASH, BOT_TOKEN, DATABASE_URL
 ```
 
 ### Запуск
@@ -20,6 +20,7 @@ python -m src.main
 
 ### Переменные окружения
 - API_ID, API_HASH, BOT_TOKEN: токены Telegram (бот через @BotFather)
+- DATABASE_URL: строка подключения к PostgreSQL (например: postgresql+asyncpg://user:pass@localhost:5432/mkbot)
 - ADMIN_WHITELIST: список Telegram user_id через запятую, кто видит /admin_menu
 - SUBJECTS_FILE: путь к subjects.json
 - TIMEZONE: таймзона для расчёта «завтра», по умолчанию Asia/Yekaterinburg
@@ -46,3 +47,14 @@ src/
     whitelist.py
 subjects.json
 ```
+
+### PostgreSQL
+1. Установите PostgreSQL и создайте БД:
+```bash
+createdb mkbot
+```
+2. Укажите `DATABASE_URL` в `.env`:
+```
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/mkbot
+```
+3. При первом запуске таблицы создадутся автоматически.
